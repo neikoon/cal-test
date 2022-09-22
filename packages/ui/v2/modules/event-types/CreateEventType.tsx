@@ -153,11 +153,15 @@ export default function CreateEventTypeButton(props: CreateEventTypeBtnProps) {
       ) : (
         <Dropdown>
           <DropdownMenuTrigger asChild>
-            <Button EndIcon={Icon.FiChevronDown}>{t("new")}</Button>
+            <Button
+              EndIcon={Icon.FiChevronDown}
+              className="radix-state-open:bg-brand-500 radix-state-open:ring-2 radix-state-open:ring-brand-500 ring-offset-2">
+              {t("new")}
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
-              <div className="max-w-48 shadow-dropdown">{t("new_event_subtitle")}</div>
+              <div className="max-w-48">{t("new_event_subtitle")}</div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="h-px bg-gray-200" />
             {props.options.map((option) => (

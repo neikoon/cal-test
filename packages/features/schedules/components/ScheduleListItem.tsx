@@ -5,20 +5,18 @@ import { availabilityAsString } from "@calcom/lib/availability";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
 import { Availability } from "@calcom/prisma/client";
 import { inferQueryOutput } from "@calcom/trpc/react";
-import { Button } from "@calcom/ui";
 import Dropdown, { DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@calcom/ui/Dropdown";
 import { Icon } from "@calcom/ui/Icon";
 import Badge from "@calcom/ui/v2/core/Badge";
+import Button from "@calcom/ui/v2/core/Button";
 
 export function ScheduleListItem({
   schedule,
   deleteFunction,
-  isDeleting = false,
   displayOptions,
 }: {
   schedule: inferQueryOutput<"viewer.availability.list">["schedules"][number];
   deleteFunction: ({ scheduleId }: { scheduleId: number }) => void;
-  isDeleting: boolean;
   displayOptions?: {
     timeZone?: string;
     hour12?: boolean;
@@ -61,24 +59,22 @@ export function ScheduleListItem({
           </Link>
         </div>
         <Dropdown>
-          <DropdownMenuTrigger className="group mr-5 h-10 w-10 border border-transparent p-0 text-neutral-500 hover:border-gray-200">
-            <Icon.FiMoreHorizontal className="h-5 w-5 group-hover:text-gray-800" />
+          <DropdownMenuTrigger asChild className="mr-5">
+            <Button type="button" size="icon" color="secondary" StartIcon={Icon.FiMoreHorizontal} />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem>
               <Button
-                disabled={isDeleting}
                 onClick={() => {
                   deleteFunction({
                     scheduleId: schedule.id,
                   });
                 }}
                 type="button"
-                color="warn"
+                color="destructive"
                 className="w-full font-normal"
-                StartIcon={isDeleting ? undefined : Icon.FiTrash}
-                loading={isDeleting}>
-                {isDeleting ? t("deleting") : t("delete_schedule")}
+                StartIcon={Icon.FiTrash}>
+                {t("delete_schedule")}
               </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>

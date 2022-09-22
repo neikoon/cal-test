@@ -23,10 +23,12 @@ import {
   showToast,
   Switch,
   TextField,
+  TextAreaField,
 } from "@calcom/ui/v2";
 
 import { EmbedButton, EmbedDialog } from "@components/Embed";
 
+import getFieldIdentifier from "../lib/getFieldIdentifier";
 import { SerializableForm } from "../types/types";
 import { App_RoutingForms_Form } from ".prisma/client";
 
@@ -81,10 +83,10 @@ function NewFormDialog({ appUrl }: { appUrl: string }) {
       <DialogContent className="overflow-y-auto">
         <div className="mb-4">
           <h3 className="text-lg font-bold leading-6 text-gray-900" id="modal-title">
-            Add New Form
+            {t("add_new_form")}
           </h3>
           <div>
-            <p className="text-sm text-gray-500">Create your form to route a booker</p>
+            <p className="text-sm text-gray-500">{t("forms_description")}</p>
           </div>
         </div>
         <Form
@@ -101,16 +103,13 @@ function NewFormDialog({ appUrl }: { appUrl: string }) {
           <div className="mt-3 space-y-4">
             <TextField label={t("title")} required placeholder="A Routing Form" {...register("name")} />
             <div className="mb-5">
-              <h3 className="mb-2 text-base font-medium leading-6 text-gray-900">Description</h3>
-              <div className="w-full">
-                <textarea
-                  id="description"
-                  data-testid="description"
-                  className="block w-full rounded-sm border-gray-300 text-sm "
-                  placeholder="Form Description"
-                  {...register("description")}
-                />
-              </div>
+              <TextAreaField
+                id="description"
+                label={t("description")}
+                {...register("description")}
+                data-testid="description"
+                placeholder="Form Description"
+              />
             </div>
           </div>
           <div className="mt-8 flex flex-row-reverse gap-x-2">
@@ -138,7 +137,8 @@ export const FormActionsDropdown = ({ form, children }: { form: RoutingForm; chi
           <Button
             type="button"
             size="icon"
-            color="minimal"
+            combined
+            color="secondary"
             className={classNames(disabled && " opacity-30")}
             StartIcon={Icon.FiMoreHorizontal}
           />
@@ -281,6 +281,7 @@ type FormActionType =
   | "embed"
   | "duplicate"
   | "download"
+  | "copyRedirectUrl"
   | "create";
 
 type FormActionProps<T> = {
@@ -303,6 +304,12 @@ export const FormAction = forwardRef(function FormAction<T extends typeof Button
   const dropdown = dropdownCtxValue?.dropdown;
   const embedLink = `forms/${routingForm?.id}`;
   const formLink = `${CAL_URL}/${embedLink}`;
+  let redirectUrl = `${CAL_URL}/router?form=${routingForm?.id}`;
+
+  routingForm?.fields?.forEach((field) => {
+    redirectUrl += `&${getFieldIdentifier(field)}={Recalled_Response_For_This_Field}`;
+  });
+
   const { t } = useLocale();
   const router = useRouter();
   const actionData: Record<
@@ -340,13 +347,19 @@ export const FormAction = forwardRef(function FormAction<T extends typeof Button
     create: {
       onClick: () => openModal(router, { action: "new" }),
     },
+    copyRedirectUrl: {
+      onClick: () => {
+        navigator.clipboard.writeText(redirectUrl);
+        showToast("Typeform Redirect URL copied! You can go and set the URL in Typeform form.", "success");
+      },
+    },
     toggle: {
       render: ({ routingForm, label = "", ...restProps }) => {
         if (!routingForm) {
           return <></>;
         }
         return (
-          <div {...restProps}>
+          <div {...restProps} className="self-center rounded-md p-2 hover:bg-gray-200">
             <Switch
               checked={!routingForm.disabled}
               label={label}

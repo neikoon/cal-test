@@ -28,9 +28,10 @@ export function Tooltip({
       <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
       <TooltipPrimitive.Content
         className={classNames(
-          side === "top" && "-mt-7 -ml-4",
+          side === "top" && "-mt-7",
           side === "right" && "ml-2",
-          "relative z-40 rounded-md bg-gray-900 px-2 py-1 text-xs font-semibold text-white shadow-lg"
+
+          "relative z-40 rounded-md bg-gray-900 px-2 py-1 text-xs font-semibold text-white shadow-lg dark:bg-white dark:text-gray-600"
         )}
         side={side}
         align="center"

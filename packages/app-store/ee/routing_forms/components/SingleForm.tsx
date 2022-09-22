@@ -2,20 +2,13 @@ import { App_RoutingForms_Form } from "@prisma/client";
 import { useRouter } from "next/router";
 import { useForm, UseFormReturn } from "react-hook-form";
 
+import useApp from "@calcom/lib/hooks/useApp";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
 import { trpc } from "@calcom/trpc/react";
 import { Icon } from "@calcom/ui";
 import { Form } from "@calcom/ui/form/fields";
 import { showToast } from "@calcom/ui/v2";
-import {
-  ButtonGroup,
-  TextAreaField,
-  TextField,
-  Tooltip,
-  DropdownMenuSeparator,
-  Button,
-  VerticalDivider,
-} from "@calcom/ui/v2";
+import { ButtonGroup, TextAreaField, TextField, Tooltip, Button, VerticalDivider } from "@calcom/ui/v2";
 import Meta from "@calcom/ui/v2/core/Meta";
 import { ShellMain } from "@calcom/ui/v2/core/Shell";
 import Banner from "@calcom/ui/v2/core/banner";
@@ -41,17 +34,12 @@ const Actions = ({
   };
 }) => {
   const { t } = useLocale();
+  const { data: typeformApp } = useApp("typeform");
+
   return (
     <div className="flex items-center">
-      <div className="hidden md:inline-flex md:items-center ">
-        <FormAction
-          className="self-center pr-2 "
-          data-testid="toggle-form"
-          action="toggle"
-          routingForm={form}
-        />
-        <VerticalDivider />
-      </div>
+      <FormAction className="self-center" data-testid="toggle-form" action="toggle" routingForm={form} />
+      <VerticalDivider />
       <ButtonGroup combined containerProps={{ className: "hidden md:inline-flex items-center" }}>
         <Tooltip content={t("preview")}>
           <FormAction
@@ -63,7 +51,6 @@ const Actions = ({
             rel="noreferrer"
             action="preview"
             StartIcon={Icon.FiExternalLink}
-            combined
           />
         </Tooltip>
         <FormAction
@@ -73,9 +60,9 @@ const Actions = ({
           size="icon"
           type="button"
           StartIcon={Icon.FiLink}
-          tooltip={t("copy_link")}
-          combined
+          tooltip={t("copy_link_to_form")}
         />
+
         <Tooltip content="Download Responses">
           <FormAction
             data-testid="download-responses"
@@ -85,7 +72,6 @@ const Actions = ({
             size="icon"
             type="button"
             StartIcon={Icon.FiDownload}
-            combined
           />
         </Tooltip>
         <FormAction
@@ -95,7 +81,6 @@ const Actions = ({
           size="icon"
           StartIcon={Icon.FiCode}
           tooltip={t("embed")}
-          combined
         />
         <FormAction
           routingForm={form}
@@ -106,9 +91,21 @@ const Actions = ({
           color="secondary"
           type="button"
           tooltip={t("delete")}
-          combined
         />
+        {typeformApp ? (
+          <FormActionsDropdown form={form}>
+            <FormAction
+              routingForm={form}
+              action="copyRedirectUrl"
+              color="minimal"
+              type="button"
+              StartIcon={Icon.FiLink}>
+              {t("Copy Typeform Redirect Url")}
+            </FormAction>
+          </FormActionsDropdown>
+        ) : null}
       </ButtonGroup>
+
       <div className="flex md:hidden">
         <FormActionsDropdown form={form}>
           <FormAction
@@ -118,9 +115,8 @@ const Actions = ({
             type="button"
             rel="noreferrer"
             action="preview"
-            StartIcon={Icon.FiExternalLink}
-            combined>
-            Preview
+            StartIcon={Icon.FiExternalLink}>
+            {t("preview")}
           </FormAction>
           <FormAction
             action="copyLink"
@@ -128,8 +124,8 @@ const Actions = ({
             routingForm={form}
             color="minimal"
             type="button"
-            StartIcon={Icon.FiCopy}>
-            {t("copy")}
+            StartIcon={Icon.FiLink}>
+            {t("copy_link_to_form")}
           </FormAction>
           <FormAction
             action="download"
@@ -138,16 +134,7 @@ const Actions = ({
             color="minimal"
             type="button"
             StartIcon={Icon.FiDownload}>
-            Download Responses
-          </FormAction>
-          <FormAction
-            action="download"
-            routingForm={form}
-            className="w-full"
-            color="minimal"
-            type="button"
-            StartIcon={Icon.FiDownload}>
-            Download Responses
+            {t("download_responses")}
           </FormAction>
           <FormAction
             action="embed"
@@ -158,6 +145,16 @@ const Actions = ({
             StartIcon={Icon.FiCode}>
             {t("embed")}
           </FormAction>
+          {typeformApp ? (
+            <FormAction
+              routingForm={form}
+              action="copyRedirectUrl"
+              color="minimal"
+              type="button"
+              StartIcon={Icon.FiLink}>
+              {t("Copy Typeform Redirect Url")}
+            </FormAction>
+          ) : null}
           <FormAction
             action="_delete"
             routingForm={form}
@@ -167,17 +164,6 @@ const Actions = ({
             StartIcon={Icon.FiTrash}>
             {t("delete")}
           </FormAction>
-          <DropdownMenuSeparator className="h-px bg-gray-200" />
-          <div className="inline-flex items-center">
-            <Button color="minimal">
-              <FormAction
-                className="self-center"
-                action="toggle"
-                label={form.disabled ? "Enable Form" : "Disable Form"}
-                routingForm={form}
-              />
-            </Button>
-          </div>
         </FormActionsDropdown>
       </div>
       <VerticalDivider />
@@ -238,7 +224,7 @@ export default function SingleForm({
           CTA={<Actions form={form} mutation={mutation} />}>
           <div className="-mx-4 px-4 sm:px-6 md:-mx-8 md:px-8">
             <div className="flex flex-col items-center md:flex-row md:items-start">
-              <div className="min-w-72 max-w-72 mb-6 md:mr-6">
+              <div className="lg:min-w-72 lg:max-w-72 mb-6 md:mr-6">
                 <TextField
                   type="text"
                   containerClassName="mb-6"
